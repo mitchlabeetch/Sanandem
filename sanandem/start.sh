@@ -9,4 +9,5 @@ if [ ! -d "build" ]; then
   exit 1
 fi
 
-node build/index.js
+HOST=0.0.0.0 node build/index.js
+
