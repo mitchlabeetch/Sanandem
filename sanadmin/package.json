@@ -97,6 +97,7 @@
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",
     "@popperjs/core": "^2.11.8",
+    "dayjs": "^1.11.19",
     "flowbite-svelte": "^1.28.3",
     "flowbite-svelte-icons": "^3.0.0",
     "postgres": "^3.4.7"

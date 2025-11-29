@@ -5,6 +5,7 @@
 		Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell,
 		Button, Label, Input, Select, Range, Card
 	} from 'flowbite-svelte';
+    import { Chart } from 'svelte-echarts';
 
 	let { data } = $props();
 
@@ -13,47 +14,86 @@
 		{ value: 'female', name: 'Female' },
 		{ value: 'other', name: 'Other' }
 	];
+
+    let chartOptions = {
+        chart: {
+            height: '300px',
+            maxWidth: '100%',
+            type: 'area',
+            fontFamily: 'Inter, sans-serif',
+            dropShadow: { enabled: false },
+            toolbar: { show: false }
+        },
+        tooltip: { enabled: true, x: { show: false } },
+        fill: {
+            type: 'gradient',
+            gradient: { opacityFrom: 0.55, opacityTo: 0, shade: '#1C64F2', gradientToColors: ['#1C64F2'] }
+        },
+        dataLabels: { enabled: false },
+        stroke: { width: 6 },
+        grid: { show: false, strokeDashArray: 4, padding: { left: 2, right: 2, top: 0 } },
+        series: [
+            { name: 'Reports', data: [10, 41, 35, 51, 49, 62, 69, 91, 148], color: '#1A56DB' }
+        ],
+        xaxis: {
+            categories: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+            labels: { show: false },
+            axisBorder: { show: false },
+            axisTicks: { show: false }
+        },
+        yaxis: { show: false }
+    };
 </script>
 
 <div class="p-8 space-y-8">
 	<h1 class="text-3xl font-bold dark:text-white">Admin Dashboard</h1>
 
-	<Card class="max-w-xl">
-		<h2 class="text-xl font-semibold mb-4 dark:text-white">Add Medication Report</h2>
-		<form method="POST" action="?/create" use:enhance class="space-y-4">
-			<div>
-				<Label for="medicationName" class="mb-2">Medication Name</Label>
-				<Input id="medicationName" name="medicationName" placeholder="e.g. Aspirin" required />
-			</div>
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <Card class="w-full max-w-none">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Report Trends</h5>
+            <p class="font-normal text-gray-700 dark:text-gray-400 mb-4">
+                Weekly submission volume.
+            </p>
+            <Chart options={chartOptions} />
+        </Card>
 
-			<div>
-				<Label for="sideEffect" class="mb-2">Side Effect</Label>
-				<Input id="sideEffect" name="sideEffect" placeholder="e.g. Headache" required />
-			</div>
+        <Card class="w-full max-w-none">
+            <h2 class="text-xl font-semibold mb-4 dark:text-white">Add Medication Report</h2>
+            <form method="POST" action="?/create" use:enhance class="space-y-4">
+                <div>
+                    <Label for="medicationName" class="mb-2">Medication Name</Label>
+                    <Input id="medicationName" name="medicationName" placeholder="e.g. Aspirin" required />
+                </div>
 
-			<div class="grid grid-cols-2 gap-4">
-				<div>
-					<Label for="age" class="mb-2">Age</Label>
-					<Input type="number" id="age" name="age" required />
-				</div>
-				<div>
-					<Label for="gender" class="mb-2">Gender</Label>
-					<Select id="gender" items={genderOptions} name="gender" required placeholder="Select gender" />
-				</div>
-			</div>
+                <div>
+                    <Label for="sideEffect" class="mb-2">Side Effect</Label>
+                    <Input id="sideEffect" name="sideEffect" placeholder="e.g. Headache" required />
+                </div>
 
-			<div>
-				<Label for="severity" class="mb-2">Severity (1-10)</Label>
-				<Range id="severity" name="severity" min="1" max="10" value="5" />
-				<div class="flex justify-between text-xs text-gray-500">
-					<span>Mild</span>
-					<span>Severe</span>
-				</div>
-			</div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <Label for="age" class="mb-2">Age</Label>
+                        <Input type="number" id="age" name="age" required />
+                    </div>
+                    <div>
+                        <Label for="gender" class="mb-2">Gender</Label>
+                        <Select id="gender" items={genderOptions} name="gender" required placeholder="Select gender" />
+                    </div>
+                </div>
 
-			<Button type="submit" class="w-full">Submit Report</Button>
-		</form>
-	</Card>
+                <div>
+                    <Label for="severity" class="mb-2">Severity (1-10)</Label>
+                    <Range id="severity" name="severity" min="1" max="10" value="5" />
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>Mild</span>
+                        <span>Severe</span>
+                    </div>
+                </div>
+
+                <Button type="submit" class="w-full">Submit Report</Button>
+            </form>
+        </Card>
+    </div>
 
 	<div>
 		<h2 class="text-xl font-semibold mb-4 dark:text-white">Recent Reports</h2>

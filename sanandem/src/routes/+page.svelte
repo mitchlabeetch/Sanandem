@@ -1,109 +1,36 @@
 <script lang="ts">
-    import { Chart } from 'svelte-echarts'
-	import { AnimatedHeadline } from 'svelte-animated-headline';
-	import type { PageData } from './$types';
-
-	let { data } = $props();
-
-	// Options for Charts
-	let sideEffectOptions = {
-		title: {
-			text: 'Most Common Side Effects',
-			left: 'center',
-            textStyle: {
-                color: '#fff'
-            }
-		},
-		tooltip: {
-			trigger: 'item'
-		},
-		series: [
-			{
-				name: 'Side Effects',
-				type: 'pie',
-				radius: '50%',
-				data: data.sideEffects,
-				emphasis: {
-					itemStyle: {
-						shadowBlur: 10,
-						shadowOffsetX: 0,
-						shadowColor: 'rgba(0, 0, 0, 0.5)'
-					}
-				}
-			}
-		]
-	};
-
-	let severityOptions = {
-		title: {
-			text: 'Average Severity by Medication',
-			left: 'center',
-            textStyle: {
-                color: '#fff'
-            }
-		},
-		tooltip: {
-			trigger: 'axis',
-			axisPointer: {
-				type: 'shadow'
-			}
-		},
-		xAxis: {
-			type: 'category',
-			data: data.severityByMed.map(d => d.name),
-            axisLabel: { color: '#fff' }
-		},
-		yAxis: {
-			type: 'value',
-            axisLabel: { color: '#fff' }
-		},
-		series: [
-			{
-				data: data.severityByMed.map(d => d.value),
-				type: 'bar',
-				showBackground: true,
-				backgroundStyle: {
-					color: 'rgba(180, 180, 180, 0.2)'
-				}
-			}
-		]
-	};
+  import AnimatedBeam from '$lib/components/magic/AnimatedBeam.svelte';
+  import { Motion } from 'svelte-motion';
+  import { AnimatedHeadline } from 'svelte-animated-headline';
 </script>
 
-<div class="min-h-screen bg-slate-900 text-white font-sans">
-	<header class="p-8 text-center">
-        <h1 class="text-4xl font-bold mb-2">
-            Medication Side Effects
+<div class="container mx-auto px-4 py-24 flex flex-col items-center justify-center min-h-[80vh]">
+    <div class="text-center space-y-4 mb-12">
+        <h1 class="text-4xl font-extrabold tracking-tight lg:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 pb-2">
+            The Missing Data in
+            <br/>
+            <span class="text-foreground text-gray-900 dark:text-gray-100">Medicine</span>
         </h1>
-        <div class="text-2xl text-blue-400">
-		    <AnimatedHeadline phrases={['Visualize Data', 'Improve Research', 'Share Experiences']} />
+        <div class="text-2xl text-muted-foreground text-gray-500">
+             Understanding <AnimatedHeadline words={['Adverse Reactions', 'Sex Differences', 'Pharmacokinetics']} />
         </div>
-	</header>
+        <p class="mx-auto max-w-[700px] text-muted-foreground md:text-xl text-gray-600">
+            Visualize and analyze the sex data gap in pharmacotherapy.
+        </p>
 
-	<main class="container mx-auto p-4 space-y-12">
-		<section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-			<div class="bg-slate-800 p-6 rounded-lg shadow-lg h-[400px]">
-				<Chart options={sideEffectOptions} />
-			</div>
-			<div class="bg-slate-800 p-6 rounded-lg shadow-lg h-[400px]">
-				<Chart options={severityOptions} />
-			</div>
-		</section>
+        <div class="flex gap-4 justify-center pt-4">
+             <a href="/visualize" class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-white shadow hover:bg-blue-700 h-9 px-4 py-2">
+                Start Exploring
+             </a>
+              <a href="/research" class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-gray-300 bg-white shadow-sm hover:bg-gray-50 h-9 px-4 py-2 text-gray-900">
+                Read Papers
+             </a>
+        </div>
+    </div>
 
-		<section class="text-center py-12">
-			<h2 class="text-3xl font-bold mb-4">Contribute to Research</h2>
-			<p class="text-gray-400 mb-6">Your anonymous data helps us understand medication effects better.</p>
-			<!-- In a real app, this would link to a public submission form, possibly reusing the admin form logic but styled differently -->
-            <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition duration-300">
-                Submit a Report
-            </button>
-		</section>
-	</main>
+    <Motion initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+        <div class="w-full max-w-4xl flex justify-center">
+            <AnimatedBeam />
+        </div>
+    </Motion>
 </div>
-
-<style>
-	:global(body) {
-		background-color: #0f172a; /* slate-900 */
-        margin: 0;
-	}
-</style>
