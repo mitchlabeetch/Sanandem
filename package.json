@@ -1,0 +1,16 @@
+{
+  "name": "sanandem-monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --filter sanandem build",
+    "start": "cd sanandem && ./start.sh"
+  },
+  "devDependencies": {
+    "pnpm": "latest"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "packageManager": "pnpm@9.12.3"
+}
