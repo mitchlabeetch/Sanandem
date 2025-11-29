@@ -97,7 +97,13 @@
 	],
 	"dependencies": {
 		"@node-rs/argon2": "^2.0.2",
+		"bits-ui": "^2.14.4",
+		"d3": "^7.9.0",
+		"echarts": "^6.0.0",
+		"layerchart": "^1.0.12",
 		"postgres": "^3.4.7",
-		"svelte-relative-time": "^0.0.6"
+		"svelte-echarts": "^1.0.0",
+		"svelte-relative-time": "^0.0.6",
+		"svelte-ux": "^1.0.9"
 	}
 }
