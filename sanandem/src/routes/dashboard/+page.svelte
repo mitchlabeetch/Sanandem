@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Chart } from 'svelte-echarts';
-    import { mockMedicationReports, sideEffectStats, severityByMed } from '$lib/data/mock';
+    import { mockMedicationReports, sideEffectStats, severityByMed } from '$lib/data';
 
     // Interactive Filters
     let searchTerm = $state('');

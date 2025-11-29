@@ -43,14 +43,14 @@ export const severityByMed = [
 
 export const graphData = {
     nodes: [
-        { id: 'Aspirin', group: 1, radius: 20 },
-        { id: 'Ibuprofen', group: 1, radius: 15 },
-        { id: 'Nausea', group: 2, radius: 10 },
-        { id: 'Headache', group: 2, radius: 12 },
-        { id: 'Stomach Pain', group: 2, radius: 8 },
-        { id: 'Dizziness', group: 2, radius: 9 },
-        { id: 'Male', group: 3, radius: 25 },
-        { id: 'Female', group: 3, radius: 25 },
+        { id: 'Aspirin', group: 1, radius: 20, value: 20 },
+        { id: 'Ibuprofen', group: 1, radius: 15, value: 15 },
+        { id: 'Nausea', group: 2, radius: 10, value: 10 },
+        { id: 'Headache', group: 2, radius: 12, value: 12 },
+        { id: 'Stomach Pain', group: 2, radius: 8, value: 8 },
+        { id: 'Dizziness', group: 2, radius: 9, value: 9 },
+        { id: 'Male', group: 3, radius: 25, value: 25 },
+        { id: 'Female', group: 3, radius: 25, value: 25 },
     ],
     links: [
         { source: 'Aspirin', target: 'Nausea', value: 5 },
@@ -64,3 +64,35 @@ export const graphData = {
         { source: 'Female', target: 'Ibuprofen', value: 7 },
     ]
 };
+
+export const interactionGraph = graphData;
+
+export const papers = [
+    {
+        title: "Gender Disparities in Adverse Drug Reactions",
+        authors: "Smith J., et al.",
+        journal: "Journal of Pharmacovigilance",
+        year: 2023,
+        stats: { citations: 124 },
+        abstract: "A comprehensive analysis of over 50,000 ADR reports revealing significant statistical differences in symptom reporting between biological males and females.",
+        tags: ["Pharmacovigilance", "Gender", "Data Analysis"]
+    },
+    {
+        title: "Metabolic Pathways and Hormonal Influence on Drug Absorption",
+        authors: "Garcia M., Chen L.",
+        journal: "Clinical Pharmacology",
+        year: 2022,
+        stats: { citations: 89 },
+        abstract: "Investigating how estrogen and testosterone levels modulate CYP450 enzyme activity and subsequent drug metabolism rates.",
+        tags: ["Metabolism", "Endocrinology", "Pharmacokinetics"]
+    },
+    {
+        title: "AI-Driven Prediction of Drug-Drug Interactions",
+        authors: "Johnson A., Robot B.",
+        journal: "Nature Digital Medicine",
+        year: 2024,
+        stats: { citations: 45 },
+        abstract: "Utilizing deep learning models to predict potential adverse interactions between common cardiovascular medications and hormonal supplements.",
+        tags: ["AI", "Machine Learning", "Drug Interactions"]
+    }
+];

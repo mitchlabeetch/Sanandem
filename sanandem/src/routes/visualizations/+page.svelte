@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { Chart } from 'svelte-echarts';
-    import { graphData } from '$lib/data/mock';
+    import { graphData } from '$lib/data';
 
     // Graph Chart Configuration
     let graphOptions = {

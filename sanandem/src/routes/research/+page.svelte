@@ -1,7 +1,6 @@
 <script>
     import { papers } from '$lib/data';
     import NumberFlow from '@number-flow/svelte';
-    import Confetti from '@neoconfetti/svelte';
     import Spinner from '~icons/svg-spinners/ring-resize';
 
     let showConfetti = $state(false);
@@ -20,11 +19,6 @@
 </script>
 
 <div class="container mx-auto px-4 py-12 relative">
-    {#if showConfetti}
-        <div class="fixed left-1/2 top-10 pointer-events-none z-50">
-            <Confetti />
-        </div>
-    {/if}
 
     <h1 class="text-3xl font-bold mb-8">Research Papers</h1>
 
