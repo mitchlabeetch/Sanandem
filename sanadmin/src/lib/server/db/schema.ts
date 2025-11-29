@@ -13,6 +13,16 @@ export const session = pgTable('session', {
 	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()
 });
 
-export type Session = typeof session.$inferSelect;
+export const medicationReports = pgTable('medication_reports', {
+	id: serial('id').primaryKey(),
+	medicationName: text('medication_name').notNull(),
+	sideEffect: text('side_effect').notNull(),
+	severity: integer('severity').notNull(), // 1-10
+	age: integer('age').notNull(),
+	gender: text('gender').notNull(),
+	createdAt: timestamp('created_at').defaultNow().notNull()
+});
 
+export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
+export type MedicationReport = typeof medicationReports.$inferSelect;
