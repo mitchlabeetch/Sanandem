@@ -64,3 +64,47 @@ export const graphData = {
         { source: 'Female', target: 'Ibuprofen', value: 7 },
     ]
 };
+
+export const interactionGraph = {
+    nodes: [
+        { id: 'Drug A', group: 1, value: 20 },
+        { id: 'Target 1', group: 2, value: 15 },
+        { id: 'Effect X', group: 3, value: 10 },
+        { id: 'Hormone Y', group: 4, value: 12 },
+    ],
+    links: [
+        { source: 'Drug A', target: 'Target 1', value: 5 },
+        { source: 'Target 1', target: 'Effect X', value: 3 },
+        { source: 'Drug A', target: 'Hormone Y', value: 2 },
+    ]
+};
+
+export const papers = [
+    {
+        title: "Long-term Effects of NSAIDs on Cardiovascular Health",
+        authors: "Dr. J. Smith, Dr. A. Johnson",
+        journal: "Cardiology Today",
+        year: 2024,
+        stats: { citations: 124 },
+        abstract: "A 10-year longitudinal study revealing subtle correlations between daily NSAID usage and hypertension markers in middle-aged adults.",
+        tags: ["Cardiology", "NSAIDs", "Longitudinal Study"]
+    },
+    {
+        title: "Machine Learning Patterns in Adverse Drug Reactions",
+        authors: "K. Lee, M. Chen",
+        journal: "Digital Health",
+        year: 2023,
+        stats: { citations: 89 },
+        abstract: "Utilizing deep learning models to predict potential drug interactions based on chemical structure similarity and patient history.",
+        tags: ["AI", "Pharmacovigilance", "Machine Learning"]
+    },
+     {
+        title: "Global Disparities in Medication Access and Safety",
+        authors: "R. Gupta, S. Williams",
+        journal: "Global Public Health",
+        year: 2023,
+        stats: { citations: 215 },
+        abstract: "Analyzing WHO data to understand how medication safety protocols differ across continents and the impact on patient outcomes.",
+        tags: ["Public Health", "Global Health", "Safety"]
+    }
+];

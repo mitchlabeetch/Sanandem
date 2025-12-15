@@ -1,6 +1,6 @@
 <script>
-  import { Chart } from 'svelte-echarts';
-  import { interactionGraph } from '$lib/data';
+  import Chart from '$lib/components/Chart.svelte';
+  import { interactionGraph } from '$lib/data/mock';
 
   const nodes = interactionGraph.nodes.map(node => ({
     id: node.id,

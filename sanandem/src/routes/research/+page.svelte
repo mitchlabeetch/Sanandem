@@ -1,10 +1,8 @@
 <script>
-    import { papers } from '$lib/data';
+    import { papers } from '$lib/data/mock';
     import NumberFlow from '@number-flow/svelte';
-    import Confetti from '@neoconfetti/svelte';
     import Spinner from '~icons/svg-spinners/ring-resize';
 
-    let showConfetti = $state(false);
     let downloads = $state(0);
     let downloading = $state(false);
 
@@ -12,20 +10,12 @@
         downloading = true;
         setTimeout(() => {
             downloading = false;
-            showConfetti = true;
             downloads++;
-            setTimeout(() => showConfetti = false, 2000);
         }, 1000);
     }
 </script>
 
 <div class="container mx-auto px-4 py-12 relative">
-    {#if showConfetti}
-        <div class="fixed left-1/2 top-10 pointer-events-none z-50">
-            <Confetti />
-        </div>
-    {/if}
-
     <h1 class="text-3xl font-bold mb-8">Research Papers</h1>
 
     <div class="grid gap-6">

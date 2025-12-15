@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { Chart } from 'svelte-echarts';
+    import Chart from '$lib/components/Chart.svelte';
     import { graphData } from '$lib/data/mock';
 
     // Graph Chart Configuration
