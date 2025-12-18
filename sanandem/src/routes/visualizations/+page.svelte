@@ -14,7 +14,7 @@
         },
         tooltip: {},
         legend: [{
-            data: graphData.nodes.map(function (a) {
+            data: graphData.nodes.map(function (a: any) {
                 return a.id;
             }),
             textStyle: { color: '#ccc' }
@@ -29,7 +29,7 @@
                 circular: {
                     rotateLabel: true
                 },
-                data: graphData.nodes.map(n => ({
+                data: graphData.nodes.map((n: any) => ({
                     id: n.id,
                     name: n.id,
                     symbolSize: n.radius,
@@ -44,7 +44,7 @@
                         color: n.group === 1 ? '#ef4444' : n.group === 2 ? '#3b82f6' : '#10b981'
                     }
                 })),
-                links: graphData.links.map(l => ({
+                links: graphData.links.map((l: any) => ({
                     source: l.source,
                     target: l.target,
                     value: l.value,
@@ -75,12 +75,14 @@
     // Animated Beam Simulation (Canvas)
     let canvas: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
+    let containerWidth = $state(0);
 
     onMount(() => {
         if (!canvas) return;
         ctx = canvas.getContext('2d')!;
 
-        let width = canvas.width = canvas.parentElement!.clientWidth;
+        // Use bound container width or fallback
+        let width = canvas.width = containerWidth || canvas.parentElement?.clientWidth || 800;
         let height = canvas.height = 400;
 
         let particles: any[] = [];
@@ -168,7 +170,7 @@
             <div class="p-4 border-b border-slate-700 bg-slate-900/50">
                 <h2 class="text-xl font-semibold text-purple-300">Data Flow Simulation</h2>
             </div>
-            <div class="h-[500px] w-full relative bg-slate-900" bind:clientWidth={canvas}>
+            <div class="h-[500px] w-full relative bg-slate-900" bind:clientWidth={containerWidth}>
                 <canvas bind:this={canvas} class="w-full h-full"></canvas>
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                      <h3 class="text-4xl font-bold text-white/10 select-none">LIVE DATA</h3>
