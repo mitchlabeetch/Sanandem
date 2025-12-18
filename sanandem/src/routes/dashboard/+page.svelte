@@ -8,7 +8,7 @@
     let minSeverity = $state(1);
 
     // Derived filtered data
-    let filteredReports = $derived(mockMedicationReports.filter(r => {
+    let filteredReports = $derived(mockMedicationReports.filter((r: any) => {
         const matchesSearch = r.medicationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                              r.sideEffect.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesGender = selectedGender === 'all' || r.gender === selectedGender;
@@ -24,9 +24,9 @@
         yAxis: { type: 'value', axisLabel: { color: '#ccc' } },
         series: [{
             data: [
-                mockMedicationReports.filter(r => r.severity <= 3).length,
-                mockMedicationReports.filter(r => r.severity > 3 && r.severity <= 7).length,
-                mockMedicationReports.filter(r => r.severity > 7).length
+                mockMedicationReports.filter((r: any) => r.severity <= 3).length,
+                mockMedicationReports.filter((r: any) => r.severity > 3 && r.severity <= 7).length,
+                mockMedicationReports.filter((r: any) => r.severity > 7).length
             ],
             type: 'bar',
             itemStyle: { color: '#3b82f6' }
@@ -51,10 +51,10 @@
     let lineOptions = {
         title: { text: 'Average Severity Trend', left: 'center', textStyle: { color: '#ccc' } },
         tooltip: { trigger: 'axis' },
-        xAxis: { type: 'category', boundaryGap: false, data: severityByMed.map(d => d.name), axisLabel: { color: '#ccc', rotate: 45 } },
+        xAxis: { type: 'category', boundaryGap: false, data: severityByMed.map((d: any) => d.name), axisLabel: { color: '#ccc', rotate: 45 } },
         yAxis: { type: 'value', axisLabel: { color: '#ccc' } },
         series: [{
-            data: severityByMed.map(d => d.value),
+            data: severityByMed.map((d: any) => d.value),
             type: 'line',
             areaStyle: { opacity: 0.3 },
             smooth: true,

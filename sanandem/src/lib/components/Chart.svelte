@@ -1,5 +1,5 @@
 <script lang="ts">
-    import echarts from 'echarts';
+    import * as echarts from 'echarts';
     import { onMount } from 'svelte';
 
     let { options } = $props();

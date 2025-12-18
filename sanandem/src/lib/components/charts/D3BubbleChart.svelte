@@ -1,12 +1,12 @@
-<script>
+<script lang="ts">
   import * as d3 from 'd3';
   import { onMount } from 'svelte';
 
-  let svg;
+  let svg: SVGSVGElement;
   let width = 600;
   let height = 400;
 
-  const data = [
+  const data: any[] = [
     { id: "Nausea", group: 1, value: 45 },
     { id: "Dizziness", group: 1, value: 38 },
     { id: "Headache", group: 1, value: 30 },
@@ -21,7 +21,7 @@
     const simulation = d3.forceSimulation(data)
         .force("charge", d3.forceManyBody().strength(5))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("collision", d3.forceCollide().radius(d => d.value + 5));
+        .force("collision", d3.forceCollide().radius((d: any) => d.value + 5));
 
     const svgEl = d3.select(svg);
 
@@ -30,8 +30,8 @@
     const nodes = svgEl.selectAll("circle")
         .data(data)
         .join("circle")
-        .attr("r", d => d.value)
-        .attr("fill", d => color(d.group.toString()))
+        .attr("r", (d: any) => d.value)
+        .attr("fill", (d: any) => color(d.group.toString()))
         .attr("opacity", 0.8)
         .attr("stroke", "#fff")
         .attr("stroke-width", 2);
@@ -39,7 +39,7 @@
     const labels = svgEl.selectAll("text")
         .data(data)
         .join("text")
-        .text(d => d.id)
+        .text((d: any) => d.id)
         .attr("text-anchor", "middle")
         .attr("dy", ".35em")
         .style("font-size", "12px")
@@ -49,12 +49,12 @@
 
     simulation.on("tick", () => {
         nodes
-            .attr("cx", d => d.x)
-            .attr("cy", d => d.y);
+            .attr("cx", (d: any) => d.x)
+            .attr("cy", (d: any) => d.y);
 
         labels
-            .attr("x", d => d.x)
-            .attr("y", d => d.y);
+            .attr("x", (d: any) => d.x)
+            .attr("y", (d: any) => d.y);
     });
   });
 </script>
