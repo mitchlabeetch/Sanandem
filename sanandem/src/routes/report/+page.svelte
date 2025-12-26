@@ -96,6 +96,12 @@
                 <p class="text-xs text-center text-gray-500 mt-4">
                     By submitting, you agree to our Open Data Policy. No personal identifiable information is stored.
                 </p>
+                <div class="bg-red-900/30 border border-red-500 rounded-lg p-4 mt-4">
+                    <p class="text-xs text-center text-red-200">
+                        <strong>⚠️ Remember:</strong> This platform is for research only. Always consult healthcare professionals for medical advice. 
+                        <a href="/disclaimer" class="underline hover:text-red-100">Read full disclaimer</a>
+                    </p>
+                </div>
             </form>
         {/if}
     </div>

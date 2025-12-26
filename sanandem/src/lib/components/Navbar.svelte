@@ -18,6 +18,9 @@
                         <a href="/" class="text-gray-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium {$page.url.pathname === '/' ? 'bg-slate-800 text-white' : ''}">
                             Home
                         </a>
+                        <a href="/about" class="text-gray-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium {$page.url.pathname === '/about' ? 'bg-slate-800 text-white' : ''}">
+                            About
+                        </a>
                         <a href="/dashboard" class="text-gray-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium {$page.url.pathname === '/dashboard' ? 'bg-slate-800 text-white' : ''}">
                             Dashboard
                         </a>
@@ -62,6 +65,7 @@
         <div class="md:hidden bg-slate-800 border-b border-slate-700 shadow-xl" id="mobile-menu" transition:slide>
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="/" onclick={() => isOpen = false} class="text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium {$page.url.pathname === '/' ? 'bg-slate-900 text-white' : ''}">Home</a>
+                <a href="/about" onclick={() => isOpen = false} class="text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium {$page.url.pathname === '/about' ? 'bg-slate-900 text-white' : ''}">About</a>
                 <a href="/dashboard" onclick={() => isOpen = false} class="text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium {$page.url.pathname === '/dashboard' ? 'bg-slate-900 text-white' : ''}">Dashboard</a>
                 <a href="/visualizations" onclick={() => isOpen = false} class="text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium {$page.url.pathname === '/visualizations' ? 'bg-slate-900 text-white' : ''}">Visualizations</a>
                  <a href="/research" onclick={() => isOpen = false} class="text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium {$page.url.pathname === '/research' ? 'bg-slate-900 text-white' : ''}">Research</a>

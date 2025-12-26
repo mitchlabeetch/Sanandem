@@ -1,6 +1,7 @@
 <script lang="ts">
     import '../app.css';
     import Navbar from '$lib/components/Navbar.svelte';
+    import DisclaimerBanner from '$lib/components/DisclaimerBanner.svelte';
     let { children } = $props();
 </script>
 
@@ -16,12 +17,17 @@
 </a>
 
 <div class="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-blue-500 selection:text-white flex flex-col">
+    <DisclaimerBanner />
     <Navbar />
     <main id="main-content" class="flex-grow">
         {@render children()}
     </main>
     <footer class="bg-slate-900 border-t border-slate-800 text-center py-8 text-gray-500 text-sm">
         <p>© {new Date().getFullYear()} Sanandem Research. Open Data for Better Medicine.</p>
+        <p class="mt-2 text-xs text-gray-600">
+            <strong>Disclaimer:</strong> This platform is for research purposes only. Always consult healthcare professionals for medical advice. 
+            <a href="/disclaimer" class="underline hover:text-gray-400">Full Disclaimer</a>
+        </p>
     </footer>
 </div>
 
