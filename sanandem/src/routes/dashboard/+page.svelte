@@ -90,7 +90,7 @@
             itemStyle: { color: '#10b981' }
         }]
     };
-
+</script>
 
 <div class="container mx-auto p-6 space-y-8">
     <div class="flex flex-col md:flex-row justify-between items-center mb-8">
