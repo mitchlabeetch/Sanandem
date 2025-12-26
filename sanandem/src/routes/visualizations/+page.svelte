@@ -1,63 +1,76 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import Chart from '$lib/components/Chart.svelte';
-    import { graphData } from '$lib/data/mock';
+    import type { PageData } from './$types';
 
-    // Graph Chart Configuration
+    let { data }: { data: PageData } = $props();
+
+    const networkData = data.networkData || { nodes: [], links: [] };
+    const totalReports = data.totalReports || 0;
+
+    // Enhanced Graph Chart Configuration with real data
     let graphOptions = {
         title: {
-            text: 'Medication Side Effect Network',
-            subtext: 'Circular Layout',
+            text: `Medication-Effect Network (${totalReports} reports)`,
+            subtext: 'Force-directed Layout',
             top: 'bottom',
             left: 'right',
             textStyle: { color: '#ccc' }
         },
-        tooltip: {},
+        tooltip: {
+            formatter: function(params: any) {
+                if (params.dataType === 'node') {
+                    return `${params.data.label}<br/>Reports: ${params.data.count}`;
+                } else if (params.dataType === 'edge') {
+                    return `Connections: ${params.data.value}`;
+                }
+                return params.name;
+            }
+        },
         legend: [{
-            data: graphData.nodes.map(function (a: any) {
-                return a.id;
-            }),
+            data: ['Medications', 'Side Effects'],
             textStyle: { color: '#ccc' }
         }],
         animationDurationUpdate: 1500,
         animationEasingUpdate: 'quinticInOut',
         series: [
             {
-                name: 'Les Miserables',
+                name: 'Medication Network',
                 type: 'graph',
-                layout: 'circular',
-                circular: {
-                    rotateLabel: true
+                layout: 'force',
+                force: {
+                    repulsion: 100,
+                    edgeLength: 100,
+                    gravity: 0.1
                 },
-                data: graphData.nodes.map((n: any) => ({
+                data: networkData.nodes.map((n: any) => ({
                     id: n.id,
-                    name: n.id,
-                    symbolSize: n.radius,
-                    value: n.radius,
-                    category: n.group,
+                    name: n.label,
+                    symbolSize: Math.min(Math.max(n.count * 5, 15), 50),
+                    value: n.count,
+                    category: n.type === 'medication' ? 0 : 1,
                     label: {
-                        show: true,
+                        show: n.count > 3,
                         position: 'right',
                         formatter: '{b}'
                     },
                     itemStyle: {
-                        color: n.group === 1 ? '#ef4444' : n.group === 2 ? '#3b82f6' : '#10b981'
+                        color: n.type === 'medication' ? '#3b82f6' : '#ef4444'
                     }
                 })),
-                links: graphData.links.map((l: any) => ({
+                links: networkData.links.map((l: any) => ({
                     source: l.source,
                     target: l.target,
                     value: l.value,
                     lineStyle: {
-                        width: l.value / 2,
-                        curveness: 0.3,
-                        opacity: 0.7
+                        width: Math.min(l.value / 2, 5),
+                        curveness: 0.2,
+                        opacity: 0.6
                     }
                 })),
                 categories: [
-                    { name: 'Medication' },
-                    { name: 'Side Effect' },
-                    { name: 'Demographic' }
+                    { name: 'Medications' },
+                    { name: 'Side Effects' }
                 ],
                 roam: true,
                 label: {
@@ -66,7 +79,13 @@
                 },
                 lineStyle: {
                     color: 'source',
-                    curveness: 0.3
+                    curveness: 0.2
+                },
+                emphasis: {
+                    focus: 'adjacency',
+                    lineStyle: {
+                        width: 10
+                    }
                 }
             }
         ]
@@ -152,6 +171,15 @@
         <p class="text-xl text-gray-400 max-w-2xl mx-auto">
             Explore the complex relationships between medications, side effects, and patient demographics through our interactive network graphs and data simulations.
         </p>
+        {#if totalReports === 0}
+            <div class="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-4 max-w-xl mx-auto mt-4">
+                <p class="text-yellow-200">
+                    No data available yet. <a href="/report" class="underline hover:text-yellow-100">Submit the first report</a> to start building the network!
+                </p>
+            </div>
+        {:else}
+            <p class="text-sm text-gray-500">Analyzing {totalReports} medication reports</p>
+        {/if}
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">

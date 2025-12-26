@@ -1,23 +1,25 @@
 import { fail } from '@sveltejs/kit';
-import { db } from '$lib/server/db/index';
-import { medicationReports } from '$lib/server/db/schema';
-import { desc } from 'drizzle-orm';
+import { getReports, getReportStatistics, createReport, deleteReport } from '$lib/server/db/reports.js';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
     try {
-	    const reports = await db.select().from(medicationReports).orderBy(desc(medicationReports.createdAt));
+	    const reports = await getReports({ limit: 100 });
+		const statistics = await getReportStatistics();
 	    return {
-		    reports
+		    reports,
+			statistics
 	    };
     } catch (e) {
         console.error("DB connection failed, using mock data", e);
         return {
-            reports: [
-                { id: 1, medicationName: 'Mock Drug A', sideEffect: 'Dizziness', severity: 4, age: 32, gender: 'female', createdAt: new Date('2023-01-01') },
-                { id: 2, medicationName: 'Mock Drug B', sideEffect: 'Nausea', severity: 6, age: 45, gender: 'male', createdAt: new Date('2023-01-02') },
-                { id: 3, medicationName: 'Mock Drug C', sideEffect: 'Headache', severity: 2, age: 28, gender: 'female', createdAt: new Date('2023-01-03') }
-            ]
+            reports: [],
+			statistics: {
+				totalReports: 0,
+				byGender: [],
+				bySeverity: [],
+				byAgeGroup: []
+			}
         };
     }
 };
@@ -36,23 +38,45 @@ export const actions: Actions = {
 		}
 
         try {
-		    await db.insert(medicationReports).values({
+			// Calculate age group
+			let ageGroup: string;
+			if (age < 18) ageGroup = '0-17';
+			else if (age <= 25) ageGroup = '18-25';
+			else if (age <= 35) ageGroup = '26-35';
+			else if (age <= 50) ageGroup = '36-50';
+			else if (age <= 65) ageGroup = '51-65';
+			else ageGroup = '65+';
+
+		    await createReport({
 			    medicationName,
-			    sideEffect,
+			    sideEffects: [sideEffect],
 			    severity,
 			    age,
-			    gender
+				ageGroup,
+			    gender,
+				submissionSource: 'admin_panel'
 		    });
         } catch (e) {
             console.error("DB insert failed", e);
-            // Return success to simulate for UI
-            return { success: true };
+            return fail(500, { error: 'Failed to create report' });
         }
 
 		return { success: true };
 	},
 	delete: async ({ request }) => {
-		// Implement delete logic if needed
-		return { success: true };
+		const formData = await request.formData();
+		const id = parseInt(formData.get('id') as string);
+
+		if (!id || isNaN(id)) {
+			return fail(400, { error: 'Invalid ID' });
+		}
+
+		try {
+			await deleteReport(id);
+			return { success: true };
+		} catch (e) {
+			console.error("DB delete failed", e);
+			return fail(500, { error: 'Failed to delete report' });
+		}
 	}
 };

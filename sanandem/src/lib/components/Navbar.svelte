@@ -27,6 +27,9 @@
                         <a href="/visualizations" class="text-gray-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium {$page.url.pathname === '/visualizations' ? 'bg-slate-800 text-white' : ''}">
                             Visualizations
                         </a>
+                        <a href="/data" class="text-gray-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium {$page.url.pathname === '/data' ? 'bg-slate-800 text-white' : ''}">
+                            Download Data
+                        </a>
                         <a href="/research" class="text-gray-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium {$page.url.pathname === '/research' ? 'bg-slate-800 text-white' : ''}">
                             Research
                         </a>
@@ -68,6 +71,7 @@
                 <a href="/about" onclick={() => isOpen = false} class="text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium {$page.url.pathname === '/about' ? 'bg-slate-900 text-white' : ''}">About</a>
                 <a href="/dashboard" onclick={() => isOpen = false} class="text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium {$page.url.pathname === '/dashboard' ? 'bg-slate-900 text-white' : ''}">Dashboard</a>
                 <a href="/visualizations" onclick={() => isOpen = false} class="text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium {$page.url.pathname === '/visualizations' ? 'bg-slate-900 text-white' : ''}">Visualizations</a>
+                <a href="/data" onclick={() => isOpen = false} class="text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium {$page.url.pathname === '/data' ? 'bg-slate-900 text-white' : ''}">Download Data</a>
                  <a href="/research" onclick={() => isOpen = false} class="text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium {$page.url.pathname === '/research' ? 'bg-slate-900 text-white' : ''}">Research</a>
             </div>
             <div class="pt-4 pb-4 border-t border-slate-700">
