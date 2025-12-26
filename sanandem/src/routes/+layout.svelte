@@ -22,12 +22,32 @@
     <main id="main-content" class="flex-grow">
         {@render children()}
     </main>
-    <footer class="bg-slate-900 border-t border-slate-800 text-center py-8 text-gray-500 text-sm">
-        <p>© {new Date().getFullYear()} Sanandem Research. Open Data for Better Medicine.</p>
-        <p class="mt-2 text-xs text-gray-600">
-            <strong>Disclaimer:</strong> This platform is for research purposes only. Always consult healthcare professionals for medical advice. 
-            <a href="/disclaimer" class="underline hover:text-gray-400">Full Disclaimer</a>
-        </p>
+    <footer class="bg-slate-900 border-t border-slate-800 text-center py-12 text-gray-500 text-sm relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-900/95 to-slate-900/90 pointer-events-none"></div>
+        <div class="relative z-10 container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-6">
+                <div class="text-left">
+                    <div class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">
+                        Sanandem
+                    </div>
+                    <p class="text-gray-400 text-sm">Open Data for Better Medicine</p>
+                </div>
+                
+                <div class="flex gap-8 text-sm">
+                    <a href="/about" class="text-gray-400 hover:text-blue-400 transition-colors">About</a>
+                    <a href="/research" class="text-gray-400 hover:text-blue-400 transition-colors">Research</a>
+                    <a href="/disclaimer" class="text-gray-400 hover:text-blue-400 transition-colors">Disclaimer</a>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-800 pt-6">
+                <p>© {new Date().getFullYear()} Sanandem Research. Open Data for Better Medicine.</p>
+                <p class="mt-2 text-xs text-gray-600">
+                    <strong>Disclaimer:</strong> This platform is for research purposes only. Always consult healthcare professionals for medical advice. 
+                    <a href="/disclaimer" class="underline hover:text-gray-400 transition-colors">Full Disclaimer</a>
+                </p>
+            </div>
+        </div>
     </footer>
 </div>
 
