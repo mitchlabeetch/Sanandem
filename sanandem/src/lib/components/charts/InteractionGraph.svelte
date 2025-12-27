@@ -1,8 +1,8 @@
-<script>
-  import { Chart } from 'svelte-echarts';
-  import { interactionGraph } from '$lib/data';
+<script lang="ts">
+  import Chart from '$lib/components/Chart.svelte';
+  import { interactionGraph } from '$lib/data/mock';
 
-  const nodes = interactionGraph.nodes.map(node => ({
+  const nodes = interactionGraph.nodes.map((node: any) => ({
     id: node.id,
     name: node.id,
     value: node.value,
@@ -11,7 +11,7 @@
     label: { show: true }
   }));
 
-  const links = interactionGraph.links.map(link => ({
+  const links = interactionGraph.links.map((link: any) => ({
     source: link.source,
     target: link.target,
     value: link.value

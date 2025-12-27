@@ -101,24 +101,47 @@
 			<TableHead>
 				<TableHeadCell>ID</TableHeadCell>
 				<TableHeadCell>Medication</TableHeadCell>
-				<TableHeadCell>Side Effect</TableHeadCell>
+				<TableHeadCell>Side Effects</TableHeadCell>
 				<TableHeadCell>Severity</TableHeadCell>
 				<TableHeadCell>Age</TableHeadCell>
 				<TableHeadCell>Gender</TableHeadCell>
 				<TableHeadCell>Date</TableHeadCell>
+				<TableHeadCell>Actions</TableHeadCell>
 			</TableHead>
 			<TableBody>
-				{#each data.reports as report}
+				{#each data.reports.slice(0, 20) as report}
 					<TableBodyRow>
 						<TableBodyCell>{report.id}</TableBodyCell>
 						<TableBodyCell>{report.medicationName}</TableBodyCell>
-						<TableBodyCell>{report.sideEffect}</TableBodyCell>
-						<TableBodyCell>{report.severity}</TableBodyCell>
-						<TableBodyCell>{report.age}</TableBodyCell>
-						<TableBodyCell>{report.gender}</TableBodyCell>
+						<TableBodyCell>
+							{#if Array.isArray(report.sideEffects)}
+								{report.sideEffects.slice(0, 2).join(', ')}
+								{#if report.sideEffects.length > 2}
+									<span class="text-gray-500">+{report.sideEffects.length - 2}</span>
+								{/if}
+							{:else}
+								{report.sideEffects || 'N/A'}
+							{/if}
+						</TableBodyCell>
+						<TableBodyCell>{report.severity}/10</TableBodyCell>
+						<TableBodyCell>{report.age || report.ageGroup || 'N/A'}</TableBodyCell>
+						<TableBodyCell>{report.gender || 'N/A'}</TableBodyCell>
 						<TableBodyCell>{new Date(report.createdAt).toLocaleDateString()}</TableBodyCell>
+						<TableBodyCell>
+							<form method="POST" action="?/delete" use:enhance>
+								<input type="hidden" name="id" value={report.id} />
+								<Button type="submit" size="xs" color="red">Delete</Button>
+							</form>
+						</TableBodyCell>
 					</TableBodyRow>
 				{/each}
+				{#if data.reports.length === 0}
+					<TableBodyRow>
+						<TableBodyCell colspan="8">
+							<p class="text-center text-gray-500 py-8">No reports yet. Create one above!</p>
+						</TableBodyCell>
+					</TableBodyRow>
+				{/if}
 			</TableBody>
 		</Table>
 	</div>

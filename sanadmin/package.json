@@ -47,8 +47,6 @@
     "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.1",
     "@inlang/paraglide-js": "^2.5.0",
-    "@oslojs/crypto": "^1.0.1",
-    "@oslojs/encoding": "^1.1.0",
     "@playwright/test": "^1.57.0",
     "@storybook/addon-a11y": "^10.1.2",
     "@storybook/addon-docs": "^10.1.2",
@@ -85,6 +83,7 @@
     "svelte": "^5.45.2",
     "svelte-check": "^4.3.4",
     "svelte-echarts": "^1.0.0",
+    "svelte-kit-test-helpers": "^1.0.1",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.48.0",
@@ -98,10 +97,14 @@
   ],
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
     "@popperjs/core": "^2.11.8",
+    "@types/uuid": "^10.0.0",
     "dayjs": "^1.11.19",
     "flowbite-svelte": "^1.28.3",
     "flowbite-svelte-icons": "^3.0.0",
-    "postgres": "^3.4.7"
+    "postgres": "^3.4.7",
+    "uuid": "^11.1.0"
   }
 }

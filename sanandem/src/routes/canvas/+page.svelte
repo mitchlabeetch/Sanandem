@@ -1,9 +1,18 @@
-<script>
+<script lang="ts">
 	import { Canvas, Layer } from 'svelte-canvas';
     import { onMount } from 'svelte';
 
+    type Particle = {
+        x: number;
+        y: number;
+        r: number;
+        color: string;
+        vx: number;
+        vy: number;
+    };
+
 	const n = 500;
-	let particles = $state([]);
+	let particles = $state<Particle[]>([]);
     let width = 800;
     let height = 600;
 
@@ -18,7 +27,7 @@
         }));
     });
 
-	const render = ({ context, width, height }) => {
+	const render = ({ context, width, height }: { context: CanvasRenderingContext2D; width: number; height: number }) => {
         if (particles.length === 0) return;
 
         // Trail effect
