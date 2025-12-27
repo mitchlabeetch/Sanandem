@@ -1,6 +1,7 @@
 <script lang="ts">
     import { fade } from 'svelte/transition';
     import { enhance } from '$app/forms';
+    import { onMount } from 'svelte';
     import type { ActionData } from './$types';
 
     let { form }: { form: ActionData } = $props();
@@ -8,13 +9,65 @@
     let submitted = $state(false);
     let loading = $state(false);
     let currentStep = $state(1);
-    let severityValue = $state(5);
+
+    // Form state backed by local storage
+    let formData = $state({
+        medicationName: '',
+        medicationDosage: '',
+        usageDuration: '',
+        sideEffects: '',
+        positiveEffects: '',
+        severity: 5,
+        durationOfEffect: '',
+        age: '',
+        gender: ''
+    });
+
+    const STORAGE_KEY = 'sanandem_report_draft';
+
+    onMount(() => {
+        // Load draft
+        const draft = localStorage.getItem(STORAGE_KEY);
+        if (draft) {
+            try {
+                const parsed = JSON.parse(draft);
+                // Simple merge
+                formData = { ...formData, ...parsed };
+                console.log('Draft restored');
+            } catch (e) {
+                console.error('Failed to restore draft', e);
+            }
+        }
+    });
+
+    // Auto-save effect
+    $effect(() => {
+        if (!submitted) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+        }
+    });
 
     // Watch for successful submission
     $effect(() => {
         if (form?.success) {
             submitted = true;
             loading = false;
+            // Clear draft on success
+            localStorage.removeItem(STORAGE_KEY);
+            // Reset form data
+             formData = {
+                medicationName: '',
+                medicationDosage: '',
+                usageDuration: '',
+                sideEffects: '',
+                positiveEffects: '',
+                severity: 5,
+                durationOfEffect: '',
+                age: '',
+                gender: ''
+            };
+            currentStep = 1;
+
         } else if (form?.error) {
             loading = false;
         }
@@ -92,17 +145,17 @@
                     <div class="space-y-6" in:fade>
                         <div>
                             <label for="medicationName" class="block text-sm font-medium text-gray-400 mb-2">Medication Name *</label>
-                            <input type="text" id="medicationName" name="medicationName" required value={form?.medicationName || ''} class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="e.g. Aspirin, Ibuprofen">
+                            <input type="text" id="medicationName" name="medicationName" required bind:value={formData.medicationName} class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="e.g. Aspirin, Ibuprofen">
                         </div>
 
                         <div>
                             <label for="medicationDosage" class="block text-sm font-medium text-gray-400 mb-2">Dosage (Optional)</label>
-                            <input type="text" id="medicationDosage" name="medicationDosage" class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="e.g. 500mg, 10ml">
+                            <input type="text" id="medicationDosage" name="medicationDosage" bind:value={formData.medicationDosage} class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="e.g. 500mg, 10ml">
                         </div>
 
                         <div>
                             <label for="usageDuration" class="block text-sm font-medium text-gray-400 mb-2">How long have you been taking this? (Optional)</label>
-                            <input type="text" id="usageDuration" name="usageDuration" class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="e.g. 2 weeks, 3 months">
+                            <input type="text" id="usageDuration" name="usageDuration" bind:value={formData.usageDuration} class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="e.g. 2 weeks, 3 months">
                         </div>
 
                         <button type="button" onclick={nextStep} class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors">
@@ -116,19 +169,19 @@
                     <div class="space-y-6" in:fade>
                         <div>
                             <label for="sideEffects" class="block text-sm font-medium text-gray-400 mb-2">Side Effects / Symptoms *</label>
-                            <textarea id="sideEffects" name="sideEffects" rows="4" required value={form?.sideEffectsRaw || ''} class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Separate multiple effects with commas (e.g. headache, nausea, dizziness)"></textarea>
+                            <textarea id="sideEffects" name="sideEffects" rows="4" required bind:value={formData.sideEffects} class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Separate multiple effects with commas (e.g. headache, nausea, dizziness)"></textarea>
                             <p class="text-xs text-gray-500 mt-1">Describe any negative effects or symptoms experienced</p>
                         </div>
 
                         <div>
                             <label for="positiveEffects" class="block text-sm font-medium text-gray-400 mb-2">Positive Effects (Optional)</label>
-                            <textarea id="positiveEffects" name="positiveEffects" rows="3" class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Separate with commas (e.g. pain relief, improved sleep)"></textarea>
+                            <textarea id="positiveEffects" name="positiveEffects" rows="3" bind:value={formData.positiveEffects} class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Separate with commas (e.g. pain relief, improved sleep)"></textarea>
                             <p class="text-xs text-gray-500 mt-1">Did the medication help with your condition?</p>
                         </div>
 
                         <div>
-                            <label for="severity" class="block text-sm font-medium text-gray-400 mb-2">Side Effect Severity: {severityValue}/10 *</label>
-                            <input type="range" id="severity" name="severity" min="1" max="10" bind:value={severityValue} value={form?.severity || 5} class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                            <label for="severity" class="block text-sm font-medium text-gray-400 mb-2">Side Effect Severity: {formData.severity}/10 *</label>
+                            <input type="range" id="severity" name="severity" min="1" max="10" bind:value={formData.severity} class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
                             <div class="flex justify-between text-xs text-gray-500 mt-1">
                                 <span>Mild (1)</span>
                                 <span>Moderate (5)</span>
@@ -138,7 +191,7 @@
 
                         <div>
                             <label for="durationOfEffect" class="block text-sm font-medium text-gray-400 mb-2">Duration of Effects (Optional)</label>
-                            <input type="text" id="durationOfEffect" name="durationOfEffect" class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="e.g. 2 hours, ongoing">
+                            <input type="text" id="durationOfEffect" name="durationOfEffect" bind:value={formData.durationOfEffect} class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="e.g. 2 hours, ongoing">
                         </div>
 
                         <div class="flex gap-4">
@@ -164,11 +217,11 @@
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div>
                                 <label for="age" class="block text-sm font-medium text-gray-400 mb-2">Age (Optional)</label>
-                                <input type="number" id="age" name="age" min="0" max="120" class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="e.g. 35">
+                                <input type="number" id="age" name="age" min="0" max="120" bind:value={formData.age} class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="e.g. 35">
                             </div>
                             <div>
                                 <label for="gender" class="block text-sm font-medium text-gray-400 mb-2">Gender (Optional)</label>
-                                <select id="gender" name="gender" class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                <select id="gender" name="gender" bind:value={formData.gender} class="w-full bg-slate-900/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                                     <option value="">Prefer not to say</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>

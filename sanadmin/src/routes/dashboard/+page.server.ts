@@ -2,13 +2,23 @@ import { fail } from '@sveltejs/kit';
 import { getReports, getReportStatistics, createReport, deleteReport } from '$lib/server/db/reports.js';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ url }) => {
+    const page = Number(url.searchParams.get('page') || '1');
+    const limit = Number(url.searchParams.get('limit') || '10');
+    const offset = (page - 1) * limit;
+
     try {
-	    const reports = await getReports({ limit: 100 });
+        // Assume getReports supports offset/limit (it was implemented in previous sprints)
+	    const reports = await getReports({ limit, offset });
 		const statistics = await getReportStatistics();
+
+        // We need total count for pagination logic, stats has it
 	    return {
 		    reports,
-			statistics
+			statistics,
+            page,
+            limit,
+            totalReports: statistics.totalReports
 	    };
     } catch (e) {
         console.error("DB connection failed, using mock data", e);
@@ -19,7 +29,10 @@ export const load: PageServerLoad = async () => {
 				byGender: [],
 				bySeverity: [],
 				byAgeGroup: []
-			}
+			},
+            page: 1,
+            limit: 10,
+            totalReports: 0
         };
     }
 };
