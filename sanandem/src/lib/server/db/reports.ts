@@ -3,6 +3,7 @@ import { medicationReports, type NewMedicationReport } from './schema.js';
 import { eq, desc, and, gte, lte, sql } from 'drizzle-orm';
 import { createHash } from 'crypto';
 import { getCachedData, setCachedData, invalidateCache } from './cache.js';
+import { env } from '$env/dynamic/private';
 
 const STATS_CACHE_KEY = 'report_statistics';
 const MED_STATS_CACHE_KEY = 'medication_statistics';
@@ -12,7 +13,27 @@ const CACHE_TTL = 3600; // 1 hour
  * Anonymize IP address by hashing it
  */
 export function hashIpAddress(ip: string): string {
-	return createHash('sha256').update(ip + (process.env.IP_SALT || 'default-salt')).digest('hex');
+	const salt = env.IP_SALT;
+
+	if (!salt) {
+		// In production, we must fail secure
+		if (process.env.NODE_ENV === 'production') {
+			throw new Error(
+				'SECURITY CRITICAL: IP_SALT environment variable is not set. Cannot securely hash IP addresses.'
+			);
+		}
+		// In development, warn but allow
+		console.warn(
+			'SECURITY WARNING: IP_SALT environment variable is not set. Using insecure default salt. Do NOT use this in production.'
+		);
+		return createHash('sha256')
+			.update(ip + 'default-salt')
+			.digest('hex');
+	}
+
+	return createHash('sha256')
+		.update(ip + salt)
+		.digest('hex');
 }
 
 /**
