@@ -9,6 +9,7 @@
     let submitted = $state(false);
     let loading = $state(false);
     let currentStep = $state(1);
+    let formElement = $state<HTMLFormElement>();
 
     // Form state backed by local storage
     let formData = $state({
@@ -74,11 +75,27 @@
     });
 
     function nextStep() {
+        if (formElement && !formElement.reportValidity()) return;
         if (currentStep < 3) currentStep++;
     }
 
     function prevStep() {
         if (currentStep > 1) currentStep--;
+    }
+
+    function handleKeydown(e: KeyboardEvent) {
+        if (e.key === 'Enter') {
+            // Allow textareas to behave normally
+            if (e.target instanceof HTMLTextAreaElement) return;
+            // Allow buttons to behave normally (e.g. Back button)
+            if (e.target instanceof HTMLButtonElement) return;
+
+            // If not on the last step, prevent submit and try to go next
+            if (currentStep < 3) {
+                e.preventDefault();
+                nextStep();
+            }
+        }
     }
 </script>
 
@@ -109,13 +126,21 @@
                 </button>
             </div>
         {:else}
-            <form method="POST" use:enhance={() => {
-                loading = true;
-                return async ({ update }) => {
-                    await update();
-                    loading = false;
-                };
-            }} class="bg-slate-800/50 backdrop-blur-md border border-slate-700 rounded-2xl p-8 shadow-2xl space-y-6" transition:fade>
+            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+            <form
+                method="POST"
+                bind:this={formElement}
+                onkeydown={handleKeydown}
+                use:enhance={() => {
+                    loading = true;
+                    return async ({ update }) => {
+                        await update();
+                        loading = false;
+                    };
+                }}
+                class="bg-slate-800/50 backdrop-blur-md border border-slate-700 rounded-2xl p-8 shadow-2xl space-y-6"
+                transition:fade
+            >
                 {#if form?.error}
                     <div class="bg-red-900/30 border border-red-500 rounded-lg p-4">
                         <p class="text-red-200 text-center">{form.error}</p>
