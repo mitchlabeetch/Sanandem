@@ -9,15 +9,31 @@ import { eq, lt } from 'drizzle-orm';
  */
 export async function getCachedData<T>(key: string): Promise<T | null> {
     try {
-        // Clean up expired cache entries first (lazy cleanup)
-        // In a high-traffic app, this might be a scheduled job instead
-        await db.delete(statisticsCache).where(lt(statisticsCache.expiresAt, new Date()));
-
         const result = await db.select().from(statisticsCache).where(eq(statisticsCache.cacheKey, key));
 
         if (result.length > 0) {
-            return result[0].cacheData as T;
+            const entry = result[0];
+            // Lazy expiration check
+            if (entry.expiresAt < new Date()) {
+                // Delete the specific expired entry
+                // We don't await this to keep the response fast, or we can await if consistency is critical.
+                // Given "every millisecond counts", we'll do it asynchronously but safely catch errors.
+                db.delete(statisticsCache)
+                    .where(eq(statisticsCache.cacheKey, key))
+                    .catch((err) => console.error('Error deleting expired cache entry:', err));
+                return null;
+            }
+            return entry.cacheData as T;
         }
+
+        // Probabilistic cleanup (e.g., 1% of requests) to remove other expired entries
+        // This prevents the table from growing indefinitely with expired data
+        if (Math.random() < 0.01) {
+            db.delete(statisticsCache)
+                .where(lt(statisticsCache.expiresAt, new Date()))
+                .catch((err) => console.error('Error in background cache cleanup:', err));
+        }
+
         return null;
     } catch (error) {
         console.error('Error fetching from cache:', error);
