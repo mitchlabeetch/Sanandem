@@ -85,6 +85,10 @@ export const statisticsCache = pgTable('statistics_cache', {
 	cacheData: jsonb('cache_data').notNull(), // The cached statistics
 	expiresAt: timestamp('expires_at').notNull(),
 	createdAt: timestamp('created_at').defaultNow().notNull()
+}, (table) => {
+	return {
+		expiresAtIdx: index('statistics_cache_expires_at_idx').on(table.expiresAt)
+	};
 });
 
 // Type exports
