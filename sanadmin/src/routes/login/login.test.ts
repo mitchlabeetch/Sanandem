@@ -28,7 +28,7 @@ vi.mock('$lib/server/db/schema', () => ({
 
 // Mock Argon2
 vi.mock('@node-rs/argon2', () => ({
-    verify: vi.fn().mockResolvedValue(true)
+    verify: vi.fn()
 }));
 
 // Mock Oslo
@@ -42,6 +42,7 @@ vi.mock('@oslojs/encoding', () => ({
 
 import { actions } from './+page.server';
 import { db } from '$lib/server/db'; // Import the mocked db to access spies
+import { verify } from '@node-rs/argon2';
 
 describe('Login Actions', () => {
     let mockRequest;
@@ -90,5 +91,57 @@ describe('Login Actions', () => {
             status: 400,
             data: { message: 'Incorrect username or password' }
         }));
+    });
+
+    it('should handle incorrect password', async () => {
+        mockRequest.formData.mockResolvedValue(new Map([['username', 'existinguser'], ['password', 'wrongpassword']]));
+
+        // Mock finding the user
+        // @ts-ignore
+        db.query.user.findFirst.mockResolvedValue({
+            id: 'user-id',
+            username: 'existinguser',
+            passwordHash: 'hashed-password'
+        });
+
+        // Mock password verification failure
+        vi.mocked(verify).mockResolvedValue(false);
+
+        const result = await actions.default({ request: mockRequest, cookies: mockCookies } as any);
+
+        expect(result).toEqual(expect.objectContaining({
+            status: 400,
+            data: { message: 'Incorrect username or password' }
+        }));
+
+        expect(verify).toHaveBeenCalledWith('hashed-password', 'wrongpassword', expect.anything());
+    });
+
+    it('should login successfully', async () => {
+        mockRequest.formData.mockResolvedValue(new Map([['username', 'existinguser'], ['password', 'correctpassword']]));
+
+        // Mock finding the user
+        // @ts-ignore
+        db.query.user.findFirst.mockResolvedValue({
+            id: 'user-id',
+            username: 'existinguser',
+            passwordHash: 'hashed-password'
+        });
+
+        // Mock password verification success
+        vi.mocked(verify).mockResolvedValue(true);
+
+        try {
+            await actions.default({ request: mockRequest, cookies: mockCookies } as any);
+            // If it doesn't throw, fail the test
+            expect.fail('Should have redirected');
+        } catch (error) {
+            // Check if it's a redirect
+            expect(error).toHaveProperty('status', 302);
+            expect(error).toHaveProperty('location', '/dashboard');
+        }
+
+        expect(verify).toHaveBeenCalledWith('hashed-password', 'correctpassword', expect.anything());
+        expect(mockCookies.set).toHaveBeenCalled();
     });
 });
