@@ -1,11 +1,30 @@
 import { json } from '@sveltejs/kit';
-import { getReports, type ReportFilters } from '$lib/server/db/reports.js';
+import { getReportsStream, type ReportFilters } from '$lib/server/db/reports.js';
 import type { RequestHandler } from './$types';
 
-/**
- * Export reports as CSV
- */
-function exportCSV(reports: any[]): string {
+function getCSVRow(report: any): string {
+	const row = [
+		report.id,
+		report.medicationName,
+		Array.isArray(report.sideEffects) ? report.sideEffects.join('; ') : report.sideEffects || '',
+		Array.isArray(report.positiveEffects)
+			? report.positiveEffects.join('; ')
+			: report.positiveEffects || '',
+		report.severity,
+		report.age || '',
+		report.ageGroup || '',
+		report.gender || '',
+		report.durationOfEffect || '',
+		report.usageDuration || '',
+		new Date(report.createdAt).toISOString(),
+		report.isVerified ? 'Yes' : 'No'
+	];
+
+	return row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',');
+}
+
+function streamCSV(stream: AsyncGenerator<any>): ReadableStream {
+	const encoder = new TextEncoder();
 	const headers = [
 		'ID',
 		'Medication Name',
@@ -21,39 +40,21 @@ function exportCSV(reports: any[]): string {
 		'Verified'
 	];
 
-	const rows = reports.map((report) => [
-		report.id,
-		report.medicationName,
-		Array.isArray(report.sideEffects) ? report.sideEffects.join('; ') : report.sideEffects || '',
-		Array.isArray(report.positiveEffects)
-			? report.positiveEffects.join('; ')
-			: report.positiveEffects || '',
-		report.severity,
-		report.age || '',
-		report.ageGroup || '',
-		report.gender || '',
-		report.durationOfEffect || '',
-		report.usageDuration || '',
-		new Date(report.createdAt).toISOString(),
-		report.isVerified ? 'Yes' : 'No'
-	]);
+	return new ReadableStream({
+		async start(controller) {
+			controller.enqueue(encoder.encode(headers.join(',') + '\n'));
 
-	const csvContent = [
-		headers.join(','),
-		...rows.map((row) =>
-			row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')
-		)
-	].join('\n');
-
-	return csvContent;
+			for await (const report of stream) {
+				const line = getCSVRow(report) + '\n';
+				controller.enqueue(encoder.encode(line));
+			}
+			controller.close();
+		}
+	});
 }
 
-/**
- * Export reports as JSON
- */
-function exportJSON(reports: any[]): string {
-	// Anonymize any potentially identifying data
-	const anonymized = reports.map((report) => ({
+function getAnonymizedReport(report: any) {
+	return {
 		id: report.id,
 		medicationName: report.medicationName,
 		medicationDosage: report.medicationDosage,
@@ -67,14 +68,36 @@ function exportJSON(reports: any[]): string {
 		usageDuration: report.usageDuration,
 		createdAt: report.createdAt,
 		isVerified: report.isVerified
-	}));
+	};
+}
 
-	return JSON.stringify(anonymized, null, 2);
+function streamJSON(stream: AsyncGenerator<any>): ReadableStream {
+	const encoder = new TextEncoder();
+	return new ReadableStream({
+		async start(controller) {
+			controller.enqueue(encoder.encode('[\n'));
+			let first = true;
+			for await (const report of stream) {
+				if (!first) {
+					controller.enqueue(encoder.encode(',\n'));
+				}
+				const anonymized = getAnonymizedReport(report);
+				controller.enqueue(encoder.encode('  ' + JSON.stringify(anonymized)));
+				first = false;
+			}
+			controller.enqueue(encoder.encode('\n]'));
+			controller.close();
+		}
+	});
 }
 
 export const GET: RequestHandler = async ({ url }) => {
 	const format = url.searchParams.get('format') || 'json';
-	const limit = parseInt(url.searchParams.get('limit') || '10000');
+	// Increase default limit or remove it for export?
+	// The original had a default of 10000. We keep it but users can request more now safely.
+	const limitParam = url.searchParams.get('limit');
+	const limit = limitParam ? parseInt(limitParam) : 10000;
+
 	const gender = url.searchParams.get('gender') || undefined;
 	const minSeverity = url.searchParams.get('minSeverity')
 		? parseInt(url.searchParams.get('minSeverity')!)
@@ -89,19 +112,17 @@ export const GET: RequestHandler = async ({ url }) => {
 			medicationName
 		};
 
-		const reports = await getReports(filters);
+		const stream = getReportsStream(filters);
 
 		if (format === 'csv') {
-			const csvContent = exportCSV(reports);
-			return new Response(csvContent, {
+			return new Response(streamCSV(stream), {
 				headers: {
 					'Content-Type': 'text/csv',
 					'Content-Disposition': `attachment; filename="medication-reports-${new Date().toISOString().split('T')[0]}.csv"`
 				}
 			});
 		} else if (format === 'json') {
-			const jsonContent = exportJSON(reports);
-			return new Response(jsonContent, {
+			return new Response(streamJSON(stream), {
 				headers: {
 					'Content-Type': 'application/json',
 					'Content-Disposition': `attachment; filename="medication-reports-${new Date().toISOString().split('T')[0]}.json"`

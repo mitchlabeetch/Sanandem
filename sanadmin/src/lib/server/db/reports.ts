@@ -101,6 +101,36 @@ export async function getReports(filters: ReportFilters = {}) {
 	return await query;
 }
 
+export async function* getReportsStream(filters: ReportFilters = {}) {
+	const BATCH_SIZE = 1000;
+	let offset = filters.offset || 0;
+	let totalFetched = 0;
+	const limit = filters.limit || Number.MAX_SAFE_INTEGER;
+
+	while (totalFetched < limit) {
+		const remaining = limit - totalFetched;
+		const currentLimit = Math.min(BATCH_SIZE, remaining);
+
+		const batchFilters: ReportFilters = {
+			...filters,
+			limit: currentLimit,
+			offset: offset
+		};
+
+		const batch = await getReports(batchFilters);
+
+		if (batch.length === 0) break;
+
+		for (const report of batch) {
+			yield report;
+			totalFetched++;
+		}
+
+		if (batch.length < currentLimit) break;
+		offset += batch.length;
+	}
+}
+
 /**
  * Update a report
  */
