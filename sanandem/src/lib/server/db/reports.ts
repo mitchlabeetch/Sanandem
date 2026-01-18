@@ -7,6 +7,7 @@ import { env } from '$env/dynamic/private';
 
 const STATS_CACHE_KEY = 'report_statistics';
 const MED_STATS_CACHE_KEY = 'medication_statistics';
+const NETWORK_GRAPH_CACHE_KEY = 'network_graph_data';
 const CACHE_TTL = 3600; // 1 hour
 
 /**
@@ -52,6 +53,7 @@ export async function createReport(data: NewMedicationReport) {
     // Invalidate caches when new data is added
     await invalidateCache(STATS_CACHE_KEY);
     await invalidateCache(MED_STATS_CACHE_KEY);
+    await invalidateCache(NETWORK_GRAPH_CACHE_KEY);
 
 	return report;
 }
@@ -148,6 +150,7 @@ export async function updateReport(id: number, data: Partial<NewMedicationReport
     // Invalidate caches
     await invalidateCache(STATS_CACHE_KEY);
     await invalidateCache(MED_STATS_CACHE_KEY);
+    await invalidateCache(NETWORK_GRAPH_CACHE_KEY);
 
 	return report;
 }
@@ -164,6 +167,7 @@ export async function deleteReport(id: number) {
     // Invalidate caches
     await invalidateCache(STATS_CACHE_KEY);
     await invalidateCache(MED_STATS_CACHE_KEY);
+    await invalidateCache(NETWORK_GRAPH_CACHE_KEY);
 
 	return report;
 }
@@ -242,4 +246,106 @@ export async function getMedicationStatistics() {
     await setCachedData(MED_STATS_CACHE_KEY, topMedications, CACHE_TTL);
 
 	return topMedications;
+}
+
+/**
+ * Get network graph data
+ */
+export async function getNetworkGraphData() {
+    // Try cache first
+    const cached = await getCachedData<{
+        nodes: Array<{ id: string; label: string; type: 'medication' | 'effect'; count: number }>;
+        links: Array<{ source: string; target: string; value: number }>;
+        totalReports: number;
+    }>(NETWORK_GRAPH_CACHE_KEY);
+
+    if (cached) return cached;
+
+    // Fetch data - limit to recent 1000 reports for performance/relevance balance
+    // Selecting only necessary columns to reduce data transfer
+    const reports = await db
+        .select({
+            medicationName: medicationReports.medicationName,
+            sideEffects: medicationReports.sideEffects
+        })
+        .from(medicationReports)
+        .orderBy(desc(medicationReports.createdAt))
+        .limit(1000);
+
+    interface Node {
+        id: string;
+        label: string;
+        type: 'medication' | 'effect';
+        count: number;
+    }
+
+    interface Link {
+        source: string;
+        target: string;
+        value: number;
+    }
+
+    const nodes: Map<string, Node> = new Map();
+    const links: Map<string, Link> = new Map();
+
+    reports.forEach((report) => {
+        const medId = `med_${report.medicationName}`;
+
+        // Add or update medication node
+        if (!nodes.has(medId)) {
+            nodes.set(medId, {
+                id: medId,
+                label: report.medicationName,
+                type: 'medication',
+                count: 1
+            });
+        } else {
+            const node = nodes.get(medId)!;
+            node.count++;
+        }
+
+        // Add effect nodes and links
+        if (Array.isArray(report.sideEffects)) {
+            report.sideEffects.forEach((effect) => {
+                const effectId = `effect_${effect}`;
+
+                // Add or update effect node
+                if (!nodes.has(effectId)) {
+                    nodes.set(effectId, {
+                        id: effectId,
+                        label: effect,
+                        type: 'effect',
+                        count: 1
+                    });
+                } else {
+                    const node = nodes.get(effectId)!;
+                    node.count++;
+                }
+
+                // Add or update link
+                const linkId = `${medId}_${effectId}`;
+                if (!links.has(linkId)) {
+                    links.set(linkId, {
+                        source: medId,
+                        target: effectId,
+                        value: 1
+                    });
+                } else {
+                    const link = links.get(linkId)!;
+                    link.value++;
+                }
+            });
+        }
+    });
+
+    const result = {
+        nodes: Array.from(nodes.values()),
+        links: Array.from(links.values()),
+        totalReports: reports.length
+    };
+
+    // Cache the result
+    await setCachedData(NETWORK_GRAPH_CACHE_KEY, result, CACHE_TTL);
+
+    return result;
 }
