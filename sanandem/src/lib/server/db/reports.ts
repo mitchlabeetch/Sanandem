@@ -16,19 +16,9 @@ export function hashIpAddress(ip: string): string {
 	const salt = env.IP_SALT;
 
 	if (!salt) {
-		// In production, we must fail secure
-		if (process.env.NODE_ENV === 'production') {
-			throw new Error(
-				'SECURITY CRITICAL: IP_SALT environment variable is not set. Cannot securely hash IP addresses.'
-			);
-		}
-		// In development, warn but allow
-		console.warn(
-			'SECURITY WARNING: IP_SALT environment variable is not set. Using insecure default salt. Do NOT use this in production.'
+		throw new Error(
+			'SECURITY CRITICAL: IP_SALT environment variable is not set. Cannot securely hash IP addresses.'
 		);
-		return createHash('sha256')
-			.update(ip + 'default-salt')
-			.digest('hex');
 	}
 
 	return createHash('sha256')
