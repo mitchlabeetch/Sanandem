@@ -11,12 +11,6 @@ vi.mock('./index.js', () => ({
     }
 }));
 
-vi.mock('./cache.js', () => ({
-    getCachedData: vi.fn(),
-    setCachedData: vi.fn(),
-    invalidateCache: vi.fn(),
-}));
-
 // Mock $env/dynamic/private
 const mockEnv = {
     IP_SALT: ''

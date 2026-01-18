@@ -2,12 +2,36 @@ import { db } from './index.js';
 import { medicationReports, auditLog, type NewMedicationReport, type NewAuditLog } from './schema.js';
 import { eq, desc, and, gte, lte, sql } from 'drizzle-orm';
 import { createHash } from 'crypto';
+import { env } from '$env/dynamic/private';
 
 /**
  * Anonymize IP address by hashing it
  */
 export function hashIpAddress(ip: string): string {
-	return createHash('sha256').update(ip + process.env.IP_SALT || 'default-salt').digest('hex');
+	const salt = env.IP_SALT;
+
+	if (!salt) {
+		// In production, we must fail secure
+		if (process.env.NODE_ENV === 'production') {
+			throw new Error(
+				'SECURITY CRITICAL: IP_SALT environment variable is not set. Cannot securely hash IP addresses.'
+			);
+		}
+		// In development, warn but allow
+		console.warn(
+			'SECURITY WARNING: IP_SALT environment variable is not set. Using insecure default salt. Do NOT use this in production.'
+		);
+		return createHash('sha256').update(ip + 'default-salt').digest('hex');
+	}
+
+	// Verify salt strength in production
+	if (process.env.NODE_ENV === 'production' && salt.length < 32) {
+		throw new Error(
+			'SECURITY CRITICAL: IP_SALT is too short. It must be at least 32 characters long for secure hashing.'
+		);
+	}
+
+	return createHash('sha256').update(ip + salt).digest('hex');
 }
 
 /**
