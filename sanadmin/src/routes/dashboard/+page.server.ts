@@ -9,8 +9,10 @@ export const load: PageServerLoad = async ({ url }) => {
 
     try {
         // Assume getReports supports offset/limit (it was implemented in previous sprints)
-	    const reports = await getReports({ limit, offset });
-		const statistics = await getReportStatistics();
+        const [reports, statistics] = await Promise.all([
+            getReports({ limit, offset }),
+            getReportStatistics()
+        ]);
 
         // We need total count for pagination logic, stats has it
 	    return {
