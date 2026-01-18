@@ -29,7 +29,8 @@ export const load: PageServerLoad = async ({ url }) => {
                 positiveCount: sql<number>`cast(count(case when jsonb_array_length(${medicationReports.positiveEffects}) > 0 then 1 end) as int)`
             })
             .from(medicationReports)
-            .where(sql`${medicationReports.medicationName} ILIKE ${name}`);
+            // Use lower() index for efficient case-insensitive search
+            .where(sql`lower(${medicationReports.medicationName}) = lower(${name})`);
 
         const data = stats[0];
 

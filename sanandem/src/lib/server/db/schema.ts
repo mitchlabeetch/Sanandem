@@ -1,4 +1,5 @@
 import { pgTable, serial, integer, text, timestamp, boolean, jsonb, index } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 // Admin user table for sanadmin backend authentication
 export const user = pgTable('user', {
@@ -60,6 +61,7 @@ export const medicationReports = pgTable('medication_reports', {
     return {
         // Indexes for frequently queried columns to improve performance
         medicationNameIdx: index('medication_name_idx').on(table.medicationName),
+        medicationNameLowerIdx: index('medication_name_lower_idx').on(sql`lower(${table.medicationName})`),
         severityIdx: index('severity_idx').on(table.severity),
         createdAtIdx: index('created_at_idx').on(table.createdAt),
         ipHashIdx: index('ip_hash_idx').on(table.ipHash)
