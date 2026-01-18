@@ -162,7 +162,7 @@ export async function getReportStatistics() {
 		.groupBy(medicationReports.ageGroup);
 
 	return {
-		totalReports: totalReports[0]?.count || 0,
+		totalReports: Number(totalReports[0]?.count || 0),
 		byGender,
 		bySeverity,
 		byAgeGroup
