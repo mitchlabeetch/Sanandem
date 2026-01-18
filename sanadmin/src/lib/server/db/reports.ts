@@ -131,35 +131,37 @@ export async function deleteReport(id: number) {
  * Get statistics about reports
  */
 export async function getReportStatistics() {
-	const totalReports = await db
-		.select({ count: sql<number>`cast(count(*) as int)` })
-		.from(medicationReports);
+	const [totalReports, byGender, bySeverity, byAgeGroup] = await Promise.all([
+		db
+			.select({ count: sql<number>`cast(count(*) as int)` })
+			.from(medicationReports),
 
-	const byGender = await db
-		.select({
-			gender: medicationReports.gender,
-			count: sql<number>`cast(count(*) as int)`
-		})
-		.from(medicationReports)
-		.groupBy(medicationReports.gender);
+		db
+			.select({
+				gender: medicationReports.gender,
+				count: sql<number>`cast(count(*) as int)`
+			})
+			.from(medicationReports)
+			.groupBy(medicationReports.gender),
 
-	const bySeverity = await db
-		.select({
-			severity: medicationReports.severity,
-			count: sql<number>`cast(count(*) as int)`
-		})
-		.from(medicationReports)
-		.groupBy(medicationReports.severity)
-		.orderBy(medicationReports.severity);
+		db
+			.select({
+				severity: medicationReports.severity,
+				count: sql<number>`cast(count(*) as int)`
+			})
+			.from(medicationReports)
+			.groupBy(medicationReports.severity)
+			.orderBy(medicationReports.severity),
 
-	const byAgeGroup = await db
-		.select({
-			ageGroup: medicationReports.ageGroup,
-			count: sql<number>`cast(count(*) as int)`
-		})
-		.from(medicationReports)
-		.where(sql`${medicationReports.ageGroup} IS NOT NULL`)
-		.groupBy(medicationReports.ageGroup);
+		db
+			.select({
+				ageGroup: medicationReports.ageGroup,
+				count: sql<number>`cast(count(*) as int)`
+			})
+			.from(medicationReports)
+			.where(sql`${medicationReports.ageGroup} IS NOT NULL`)
+			.groupBy(medicationReports.ageGroup)
+	]);
 
 	return {
 		totalReports: totalReports[0]?.count || 0,
