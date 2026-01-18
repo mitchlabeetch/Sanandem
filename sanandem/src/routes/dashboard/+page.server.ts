@@ -3,12 +3,12 @@ import type { PageServerLoad } from './$types.js';
 
 export const load: PageServerLoad = async () => {
 	try {
-		// Get recent reports (limit to 100 for performance)
-		const reports = await getReports({ limit: 100 });
-
-		// Get statistics
-		const statistics = await getReportStatistics();
-		const medicationStats = await getMedicationStatistics();
+		// Fetch data in parallel for better performance
+		const [reports, statistics, medicationStats] = await Promise.all([
+			getReports({ limit: 100 }),
+			getReportStatistics(),
+			getMedicationStatistics()
+		]);
 
 		return {
 			reports,
