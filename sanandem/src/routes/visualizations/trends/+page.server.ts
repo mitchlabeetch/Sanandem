@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types.js';
 import { db } from '$lib/server/db/index.js';
 import { medicationReports } from '$lib/server/db/schema.js';
-import { sql } from 'drizzle-orm';
+import { sql, desc } from 'drizzle-orm';
 
 export const load: PageServerLoad = async () => {
     try {
@@ -21,13 +21,48 @@ export const load: PageServerLoad = async () => {
              trends: trends as unknown as Array<{ date: string, count: number, avgSeverity: number }>
         };
     } catch (e) {
-        console.error("Trends query failed, using mock", e);
-        return {
-            trends: [
-                { date: '2023-10-01', count: 5, avgSeverity: 4.2 },
-                { date: '2023-10-02', count: 8, avgSeverity: 5.1 },
-                { date: '2023-10-03', count: 3, avgSeverity: 3.8 }
-            ]
-        };
+        console.warn("Advanced trends query failed, attempting fallback to simpler query...", e);
+        try {
+            // Fallback: Fetch raw data and aggregate in JS
+            // Use desc to get the most recent reports
+            const rawReports = await db.select({
+                createdAt: medicationReports.createdAt,
+                severity: medicationReports.severity
+            })
+            .from(medicationReports)
+            .orderBy(desc(medicationReports.createdAt))
+            .limit(500); // Safety limit
+
+            const trendsMap = new Map<string, { count: number, totalSeverity: number }>();
+
+            for (const report of rawReports) {
+                const date = report.createdAt.toISOString().split('T')[0];
+                const entry = trendsMap.get(date) || { count: 0, totalSeverity: 0 };
+                entry.count++;
+                entry.totalSeverity += report.severity;
+                trendsMap.set(date, entry);
+            }
+
+            const trends = Array.from(trendsMap.entries())
+                .map(([date, data]) => ({
+                    date,
+                    count: data.count,
+                    avgSeverity: data.totalSeverity / data.count
+                }))
+                .sort((a, b) => a.date.localeCompare(b.date))
+                .slice(0, 30);
+
+            return { trends };
+
+        } catch (e2) {
+            console.error("All trends queries failed, using mock data", e2);
+            return {
+                trends: [
+                    { date: '2023-10-01', count: 5, avgSeverity: 4.2 },
+                    { date: '2023-10-02', count: 8, avgSeverity: 5.1 },
+                    { date: '2023-10-03', count: 3, avgSeverity: 3.8 }
+                ]
+            };
+        }
     }
 };
