@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Move mockDb inside the mock factory or use vi.fn() directly inside
-vi.mock('$lib/server/db', () => ({
-    db: {
+vi.mock('$lib/server/db', () => {
+    const mockDb = {
         query: {
             user: {
                 findFirst: vi.fn()
@@ -18,8 +17,9 @@ vi.mock('$lib/server/db', () => ({
                 })
             })
         })
-    }
-}));
+    };
+    return { db: mockDb };
+});
 
 vi.mock('$lib/server/db/schema', () => ({
     user: { id: 'id', username: 'username', passwordHash: 'passwordHash' },
