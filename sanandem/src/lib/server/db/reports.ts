@@ -31,6 +31,13 @@ export function hashIpAddress(ip: string): string {
 			.digest('hex');
 	}
 
+	// Verify salt strength in production
+	if (process.env.NODE_ENV === 'production' && salt.length < 32) {
+		throw new Error(
+			'SECURITY CRITICAL: IP_SALT is too short. It must be at least 32 characters long for secure hashing.'
+		);
+	}
+
 	return createHash('sha256')
 		.update(ip + salt)
 		.digest('hex');
