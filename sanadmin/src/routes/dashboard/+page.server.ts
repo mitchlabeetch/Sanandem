@@ -8,7 +8,6 @@ export const load: PageServerLoad = async ({ url }) => {
     const offset = (page - 1) * limit;
 
     try {
-        // Assume getReports supports offset/limit (it was implemented in previous sprints)
 	    const reports = await getReports({ limit, offset });
 		const statistics = await getReportStatistics();
 
