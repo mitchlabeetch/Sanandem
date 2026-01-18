@@ -48,14 +48,9 @@ describe('hashIpAddress Security', () => {
         vi.restoreAllMocks();
     });
 
-    it('uses default salt and warns when IP_SALT is missing in non-production', () => {
+    it('throws error when IP_SALT is missing in non-production', () => {
         const ip = '127.0.0.1';
-        const expectedDefaultHash = createHash('sha256').update(ip + 'default-salt').digest('hex');
-
-        const result = hashIpAddress(ip);
-
-        expect(result).toBe(expectedDefaultHash);
-        expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('SECURITY WARNING'));
+        expect(() => hashIpAddress(ip)).toThrow('SECURITY CRITICAL');
     });
 
     it('throws error when IP_SALT is missing in production', () => {
