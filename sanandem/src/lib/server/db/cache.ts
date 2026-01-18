@@ -8,6 +8,15 @@ import { eq, lt } from 'drizzle-orm';
  * @returns The cached data or null if not found/expired
  */
 export async function getCachedData<T>(key: string): Promise<T | null> {
+    // Probabilistic cleanup (e.g., 1% of requests) to remove other expired entries
+    // This prevents the table from growing indefinitely with expired data.
+    // We do this asynchronously and don't await it to avoid blocking the read.
+    if (Math.random() < 0.01) {
+        db.delete(statisticsCache)
+            .where(lt(statisticsCache.expiresAt, new Date()))
+            .catch((err) => console.error('Error in background cache cleanup:', err));
+    }
+
     try {
         const result = await db.select().from(statisticsCache).where(eq(statisticsCache.cacheKey, key));
 
@@ -24,14 +33,6 @@ export async function getCachedData<T>(key: string): Promise<T | null> {
                 return null;
             }
             return entry.cacheData as T;
-        }
-
-        // Probabilistic cleanup (e.g., 1% of requests) to remove other expired entries
-        // This prevents the table from growing indefinitely with expired data
-        if (Math.random() < 0.01) {
-            db.delete(statisticsCache)
-                .where(lt(statisticsCache.expiresAt, new Date()))
-                .catch((err) => console.error('Error in background cache cleanup:', err));
         }
 
         return null;
