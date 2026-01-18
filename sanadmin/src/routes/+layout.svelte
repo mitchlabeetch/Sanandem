@@ -1,6 +1,7 @@
 <script lang="ts">
     import '../app.css'; // Ensure Tailwind is loaded
     import { page } from '$app/stores';
+    import { enhance } from '$app/forms';
     import {
         Sidebar, SidebarGroup, SidebarItem, SidebarWrapper,
         Navbar, NavBrand, NavHamburger, NavUl, NavLi
@@ -9,10 +10,11 @@
         ChartPieSolid,
         GridSolid,
         UserSolid,
-        ArrowRightToBracketOutline
+        ArrowRightToBracketOutline,
+        ArrowLeftToBracketOutline
     } from 'flowbite-svelte-icons';
 
-    let { children } = $props();
+    let { children, data } = $props();
     let spanClass = 'flex-1 ml-3 whitespace-nowrap';
 </script>
 
@@ -48,11 +50,23 @@
                         <GridSolid class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
                     {/snippet}
                 </SidebarItem>
-                 <SidebarItem label="Sign In" href="/login">
-                    {#snippet icon()}
-                        <ArrowRightToBracketOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                    {/snippet}
-                </SidebarItem>
+
+                {#if data.user}
+                    <li>
+                        <form action="/logout" method="POST" use:enhance class="w-full">
+                            <button type="submit" class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                                <ArrowLeftToBracketOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                                <span class={spanClass}>Sign Out</span>
+                            </button>
+                        </form>
+                    </li>
+                {:else}
+                    <SidebarItem label="Sign In" href="/login">
+                        {#snippet icon()}
+                            <ArrowRightToBracketOutline class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                        {/snippet}
+                    </SidebarItem>
+                {/if}
             </SidebarGroup>
         </SidebarWrapper>
     </Sidebar>
