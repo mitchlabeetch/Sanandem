@@ -21,8 +21,8 @@ export const load: PageServerLoad = async ({ url }) => {
             .select({
                 count: sql<number>`cast(count(*) as int)`,
                 avgSeverity: sql<number>`cast(avg(${medicationReports.severity}) as float)`,
-                // Approximate avg side effects count by checking array length (Postgres specific)
-                avgSideEffects: sql<number>`cast(avg(jsonb_array_length(${medicationReports.sideEffects})) as float)`,
+                // Calculate average of distinct side effects per report for better accuracy
+                avgSideEffects: sql<number>`cast(avg((SELECT count(DISTINCT x) FROM jsonb_array_elements_text(${medicationReports.sideEffects}) x)) as float)`,
                 // Simple heuristic for duration: extract first digit (very rough, better if normalized in DB)
                 // For now, we'll return a placeholder or 0 if data is unstructured
                 avgDuration: sql<number>`0`,
