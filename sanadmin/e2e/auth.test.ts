@@ -20,17 +20,20 @@ test('login and logout flow', async ({ page }) => {
   const sessionCookie = cookies.find(c => c.name === 'session');
   expect(sessionCookie).toBeDefined();
 
-  // 6. Test logout (assuming there is a logout button or we can hit the endpoint)
-  // Since we haven't implemented a UI button for logout yet, we can try to POST to /logout
-  // or check if accessing login again redirects to dashboard
+  // 6. Test logout
+  // Since we implemented the logout button in the sidebar, we can click it.
+  // The sidebar has a 'Sign Out' button.
 
-  await page.goto('/login');
-  await expect(page).toHaveURL('/dashboard');
+  // Wait for the button to be visible
+  await page.waitForSelector('button:has-text("Sign Out")');
+  await page.click('button:has-text("Sign Out")');
 
-  // Manually trigger logout via form if UI element exists, or request
-  // For now let's assume we can navigate to a page that has a logout button or invoke it.
-  // Since we don't have a logout button in the dashboard UI yet, we can't test it via UI click.
-  // But we can verify that protected routes are accessible.
+  // 7. Verify redirect to login
+  await expect(page).toHaveURL('/login');
+
+  // 8. Verify protected routes redirect to login
+  await page.goto('/dashboard');
+  await expect(page).toHaveURL('/login');
 });
 
 test('protected routes redirect to login', async ({ page }) => {
