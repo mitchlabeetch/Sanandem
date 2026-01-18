@@ -23,9 +23,18 @@ export const load: PageServerLoad = async ({ url }) => {
                 avgSeverity: sql<number>`cast(avg(${medicationReports.severity}) as float)`,
                 // Approximate avg side effects count by checking array length (Postgres specific)
                 avgSideEffects: sql<number>`cast(avg(jsonb_array_length(${medicationReports.sideEffects})) as float)`,
-                // Simple heuristic for duration: extract first digit (very rough, better if normalized in DB)
-                // For now, we'll return a placeholder or 0 if data is unstructured
-                avgDuration: sql<number>`0`,
+                // Parse duration from text to hours using regex for common units (yr, mo, wk, d, h, min)
+                // Supports decimals (e.g. 1.5 days) and uses word boundaries (\y) to avoid false positives (e.g. 'doses' matching 'd')
+                avgDuration: sql<number>`cast(avg(
+                    NULLIF(
+                        COALESCE(cast(substring(${medicationReports.durationOfEffect} from '(?i)([0-9]+(?:\\.[0-9]+)?)\\s*(?:yrs?|years?)\\y') as float) * 8760, 0) +
+                        COALESCE(cast(substring(${medicationReports.durationOfEffect} from '(?i)([0-9]+(?:\\.[0-9]+)?)\\s*(?:mos?|months?)\\y') as float) * 720, 0) +
+                        COALESCE(cast(substring(${medicationReports.durationOfEffect} from '(?i)([0-9]+(?:\\.[0-9]+)?)\\s*(?:wks?|weeks?)\\y') as float) * 168, 0) +
+                        COALESCE(cast(substring(${medicationReports.durationOfEffect} from '(?i)([0-9]+(?:\\.[0-9]+)?)\\s*(?:d|days?)\\y') as float) * 24, 0) +
+                        COALESCE(cast(substring(${medicationReports.durationOfEffect} from '(?i)([0-9]+(?:\\.[0-9]+)?)\\s*(?:h|hrs?|hours?)\\y') as float), 0) +
+                        COALESCE(cast(substring(${medicationReports.durationOfEffect} from '(?i)([0-9]+(?:\\.[0-9]+)?)\\s*(?:min|mins?|minutes?)\\y') as float) / 60, 0)
+                    , 0)
+                ) as float)`,
                 positiveCount: sql<number>`cast(count(case when jsonb_array_length(${medicationReports.positiveEffects}) > 0 then 1 end) as int)`
             })
             .from(medicationReports)
@@ -40,7 +49,7 @@ export const load: PageServerLoad = async ({ url }) => {
             count: data.count,
             avgSeverity: data.avgSeverity || 0,
             avgSideEffects: data.avgSideEffects || 0,
-            avgDuration: 24, // Mocked for now as text parsing is complex
+            avgDuration: data.avgDuration || 0,
             positiveRatio: data.count > 0 ? data.positiveCount / data.count : 0
         };
     }
