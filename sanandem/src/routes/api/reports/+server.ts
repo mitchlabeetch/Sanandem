@@ -12,16 +12,17 @@ export const GET: RequestHandler = async ({ url }) => {
 	const medicationName = url.searchParams.get('medicationName') || undefined;
 
 	try {
-		const reports = await getReports({
-			limit,
-			offset,
-			gender,
-			minSeverity,
-			medicationName
-		});
-
-		const statistics = await getReportStatistics();
-		const medicationStats = await getMedicationStatistics();
+		const [reports, statistics, medicationStats] = await Promise.all([
+			getReports({
+				limit,
+				offset,
+				gender,
+				minSeverity,
+				medicationName
+			}),
+			getReportStatistics(),
+			getMedicationStatistics()
+		]);
 
 		return json({
 			reports,
